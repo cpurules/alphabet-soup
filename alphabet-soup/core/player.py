@@ -7,6 +7,9 @@ class Player:
     def create_from_id(user_id: int):
         return Player(user_id)
     
+    def __str__(self):
+        return "<@{0}>".format(self.user_id)
+
     def find_word(self, word: str):
         if word in self.found_words:
             raise ValueError("Already found word " + word)
