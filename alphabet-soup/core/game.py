@@ -1,7 +1,7 @@
 from core.dice import Dice
 from core.dictionary import Dictionary
-from core.context import Context
-from core.player import Player
+from core.context import Context, ContextMapper
+from core.player import Player, PlayerMapper
 
 from datetime import datetime, timedelta
 
@@ -15,6 +15,9 @@ class Game:
         self.dictionary = dictionary
         self.dice = dice
         self.time_limit = time_limit
+    
+    def create(self):
+        pass
 
 class ActiveGame(Game):
     def __init__(self,
@@ -33,3 +36,26 @@ class EndedGame(Game):
         self.started_at = started_at
         self.winner = winner
         self.longest_words = longest_words
+
+class GameMapper:
+    @staticmethod
+    def map_to_db_dict(game: Game):
+        db_dict = {
+            '_key': str(game._key),
+            'context': ContextMapper.map_to_db_dict(game.context),
+            'players': [PlayerMapper.map_to_db_dict(player) for player in game.players],
+            'dictionary': game.dictionary.name,
+            'dice': game.dice.name,
+            'time_limit': game.time_limit
+        }
+        if isinstance(game, ActiveGame):
+            db_dict.update({
+                'started_at': game.started_at
+            })
+        if isinstance(game, EndedGame):
+            db_dict.update({
+                'started_at': game.started_at,
+                'winner': PlayerMapper.map_to_db_dict(game.winner, exclude_words=True),
+                'longest_words': game.longest_words
+            })
+        return db_dict
