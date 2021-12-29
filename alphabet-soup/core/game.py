@@ -16,6 +16,12 @@ class Game:
         self.dice = dice
         self.time_limit = time_limit
     
+    #TODO
+    @staticmethod
+    def get_by_context(context: Context, *, match_owner: bool=False,
+                        pending: bool=False, active: bool=False, ended: bool=False):
+        return None
+    
     def start(self):
         active_game = ActiveGame(self._key, self.context, self.players, self.dictionary,
                             self.dice, self.time_limit, datetime.now())
@@ -30,6 +36,10 @@ class ActiveGame(Game):
         super().__init__(_key, context, players, dictionary, dice, time_limit)
         self.started_at = started_at
     
+    @staticmethod
+    def get_by_context(context: Context, *, match_owner: bool=False):
+        return super(ActiveGame, ActiveGame).get_by_context(context, match_owner=match_owner, active=True)
+    
     def start(self):
         raise RuntimeError("Cannot start an active game")
 
@@ -42,6 +52,10 @@ class EndedGame(Game):
         self.started_at = started_at
         self.winner = winner
         self.longest_words = longest_words
+    
+    @staticmethod
+    def get_by_context(context: Context, *, match_owner: bool=False):
+        return super(ActiveGame, ActiveGame).get_by_context(context, match_owner=match_owner, ended=True)
     
     def start(self):
         raise RuntimeError("Cannot start an ended game")
