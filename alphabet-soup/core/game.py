@@ -16,8 +16,11 @@ class Game:
         self.dice = dice
         self.time_limit = time_limit
     
-    def create(self):
-        pass
+    def start(self):
+        active_game = ActiveGame(self._key, self.context, self.players, self.dictionary,
+                            self.dice, self.time_limit, datetime.now())
+        # update game in database TODO
+        return active_game
 
 class ActiveGame(Game):
     def __init__(self,
@@ -26,6 +29,9 @@ class ActiveGame(Game):
                     started_at: datetime):
         super().__init__(_key, context, players, dictionary, dice, time_limit)
         self.started_at = started_at
+    
+    def start(self):
+        raise RuntimeError("Cannot start an active game")
 
 class EndedGame(Game):
     def __init__(self,
@@ -36,6 +42,9 @@ class EndedGame(Game):
         self.started_at = started_at
         self.winner = winner
         self.longest_words = longest_words
+    
+    def start(self):
+        raise RuntimeError("Cannot start an ended game")
 
 class GameMapper:
     @staticmethod
